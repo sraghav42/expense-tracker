@@ -1,23 +1,41 @@
-import logo from './logo.svg';
 import './App.css';
+import {PieChart, Pie} from 'recharts';
 
 function App() {
+  const data=[
+    {category:"Food", amount:250},
+    {category:"Utlities", amount:150}
+  ];
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <div>
+        <h1>Hello "Raghav"</h1>
+        <h2>Your expenses</h2>
+        <table>
+          <tr>
+            <th>Category</th>
+            <th>Amount</th>
+          </tr>
+          <tr>
+            <td>Food</td>
+            <td>$250</td>
+          </tr>
+          <tr>
+            <td>Utilities</td>
+            <td>$150</td>
+          </tr>
+          <tr>
+            <td><b>Total</b></td>
+            <td><b>$400</b></td>
+          </tr>
+        </table>
+      </div>
+      <div>
+        <PieChart width={500} height={500}>
+          <Pie data={data} dataKey={"amount"} outerRadius={150} fill='blue'/>
+        </PieChart>
+      </div>
     </div>
   );
 }

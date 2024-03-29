@@ -1,42 +1,19 @@
 import './App.css';
-import {PieChart, Pie} from 'recharts';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import ResponsiveAppBar from './components/Navbar';
+import DetailedReport from './pages/DetailedReport';
+import Home from './pages/Home';
 
 function App() {
-  const data=[
-    {category:"Food", amount:250},
-    {category:"Utlities", amount:150}
-  ];
 
   return (
-    <div>
-      <div>
-        <h1>Hello "Raghav"</h1>
-        <h2>Your expenses</h2>
-        <table>
-          <tr>
-            <th>Category</th>
-            <th>Amount</th>
-          </tr>
-          <tr>
-            <td>Food</td>
-            <td>$250</td>
-          </tr>
-          <tr>
-            <td>Utilities</td>
-            <td>$150</td>
-          </tr>
-          <tr>
-            <td><b>Total</b></td>
-            <td><b>$400</b></td>
-          </tr>
-        </table>
-      </div>
-      <div>
-        <PieChart width={500} height={500}>
-          <Pie data={data} dataKey={"amount"} outerRadius={150} fill='blue'/>
-        </PieChart>
-      </div>
-    </div>
+    <Router>
+      <ResponsiveAppBar />
+        <Routes>
+          <Route path ="/home" element={<Home/>} />
+          <Route path ="/detailedreport" element={<DetailedReport />} />
+        </Routes>
+    </Router>
   );
 }
 

@@ -10,8 +10,8 @@ function App() {
     <Router>
       <ResponsiveAppBar />
         <Routes>
-          <Route path ="/home" element={<Home/>} />
-          <Route path ="/detailedreport" element={<DetailedReport />} />
+          <Route path ="/" element={<Home/>} />
+          <Route path ="/detailed-report" element={<DetailedReport />} />
         </Routes>
     </Router>
   );

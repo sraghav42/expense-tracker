@@ -5,7 +5,6 @@ import DetailedReport from './pages/DetailedReport';
 import Home from './pages/Home';
 
 function App() {
-
   return (
     <Router>
       <ResponsiveAppBar />

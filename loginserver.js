@@ -1,5 +1,5 @@
 const express=require('express');
-const connection=require("./src/config/db");
+const getConnection=require("./src/config/db");
 
 const app = express();
 const PORT=5000;
@@ -10,4 +10,7 @@ process.on("unhandledRejection",err => {
     loginserver.close(() => process.exit(1));
 });
 
-connection();
+getConnection();
+
+app.use(express.json());
+app.use("/api/auth",require("./src/auth/Route"));

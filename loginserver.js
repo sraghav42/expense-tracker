@@ -10,7 +10,7 @@ process.on("unhandledRejection",err => {
     loginserver.close(() => process.exit(1));
 });
 
-getConnection();
+//getConnection();
 
 app.use(express.json());
 app.use("/api/auth",require("./src/auth/Route"));

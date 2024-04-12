@@ -1,25 +1,24 @@
-const mysql=require('mysql2');
+const mysql=require('mysql2/promise');
 //const dotenv=require('dotenv');
 
 //dotenv.config();
 
-function getConnection(){
-    const connection=mysql.createConnection({
-        //need to figure out how to use .env variables
-        host : 'localhost',
-        user : 'root',
-        password : 'password',
-        database : 'expense_tracker_db',
-    });
+async function getConnection(){
+    try{
+        const connection=await mysql.createConnection({
+            //need to figure out how to use .env variables
+            host : 'localhost',
+            user : 'root',
+            password : 'password',
+            database : 'expense_tracker_db',
+        });
 
-    connection.connect((err) => {
-        if(err){
-            console.error('Error connecting to the database:',err);
-            return;
-        }
         console.log('Connected to the database');
-    });
-    return connection;
+        return connection;
+    }catch(error){
+        console.log("Error connecting to database:",error);
+        throw error;
+    }
 }
 
 module.exports=getConnection;

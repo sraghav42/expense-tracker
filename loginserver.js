@@ -1,5 +1,7 @@
 const express=require('express');
 const getConnection=require("./src/config/db");
+const cookieParser=require("cookie-parser");
+const {userAuth}=require("./middleware/Auth")
 
 const app = express();
 const PORT=5000;
@@ -12,5 +14,7 @@ process.on("unhandledRejection",err => {
 
 //getConnection();
 
+app.use(cookieParser());
 app.use(express.json());
 app.use("/api/auth",require("./src/auth/Route"));
+app.get("/basic",userAuth,(req,res) => res.send("User Route"));

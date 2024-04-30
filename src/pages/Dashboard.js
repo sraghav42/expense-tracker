@@ -1,11 +1,32 @@
 import React from "react";
 import {PieChart, Pie} from 'recharts';
+import { useEffect,useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function Dashboard() {
+    const navigate=useNavigate();
+    const [error,setError]=useState('');
+
     const data=[
       {category:"Food", amount:250},
       {category:"Utlities", amount:150}
     ];
+
+    useEffect(() =>{
+      const checkToken = async () => {
+        try{
+          const res=await fetch('http://localhost:5000/api/auth/login',{
+                  method:'POST',
+                  headers:{'Content-Type':'application/json'},
+                  credentials:'include'
+              });
+        }catch(err){
+          console.log("Error : ",err);
+          setError('An unexpected error occurred. Please try again.');
+        }
+      }
+
+    })
 
     return (
     <div>

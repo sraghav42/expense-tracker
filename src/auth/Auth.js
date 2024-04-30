@@ -45,7 +45,7 @@ exports.login = async (req,res,next) => {
     try{
         const [rows,fields]=await connection.query(sql,[username]);
             
-        if(rows[0].length===0){
+        if(rows.length===0){
             console.log("Login Failed");
             return res.status(401).json({message:"Login failed",error:"User not found"});
         }

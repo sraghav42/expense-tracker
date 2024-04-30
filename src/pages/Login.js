@@ -13,14 +13,15 @@ const Login = () => {
             const res=await fetch('http://localhost:5000/api/auth/login',{
                 method:'POST',
                 body:JSON.stringify({username,password}),
-                headers:{'Content-Type':'application/json'}
+                headers:{'Content-Type':'application/json'},
+                credentials:'include'
             });
 
             const data=await res.json();
             if(res.status===400 || res.status===401 || res.status===404){
                 setError(`${data.message}. ${data.error ? data.error : ''}`);
             } else{
-                window.location.assign('/');
+                window.location.assign('/dashboard');
             }
         } catch(err){
             console.log("Error : ",err);

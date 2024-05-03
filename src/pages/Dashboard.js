@@ -15,18 +15,27 @@ function Dashboard() {
     useEffect(() =>{
       const checkToken = async () => {
         try{
-          const res=await fetch('http://localhost:5000/api/auth/login',{
-                  method:'POST',
+            const res=await fetch('http://localhost:5000/tokencheck',{
+                  method:'GET',
                   headers:{'Content-Type':'application/json'},
                   credentials:'include'
               });
+
+            if (res.status===400 || res.status===401){
+              setError(`${data.message}. ${data.error ? data.error : ''}`);
+              navigate('/login');
+            }
+
         }catch(err){
           console.log("Error : ",err);
           setError('An unexpected error occurred. Please try again.');
+          navigate('/login');
         }
-      }
+      };
 
-    })
+      //checkToken();
+
+    });
 
     return (
     <div>

@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import Home from './pages/Home';
 import Register from './pages/Register';
+import ProtectedRoute from './auth/ProtectedRoutes';
 
 
 function App() {
@@ -16,8 +17,8 @@ function App() {
         <Route path='/login' element={<Login />} />
         <Route path='/dashboard' element={
           <div>
-            <ResponsiveAppBar />
-            <Dashboard />
+            <ResponsiveAppBar/>
+            <ProtectedRoute/>
           </div>
         } />
       </Routes>

@@ -22,7 +22,7 @@ app.use(cors({
 app.use(cookieParser());
 app.use(express.json());
 app.use("/api/auth",require("./src/auth/Route"));
-//app.get("/tokencheck",userAuth,(req,res) => res.send("Token validation"));
+app.get("/tokencheck",userAuth,(req,res) => res.send("Token validation"));
 app.get('/logout',(req,res) => {
     res.cookie("jwt","",{ maxAge:"1"})
     res.redirect("/")

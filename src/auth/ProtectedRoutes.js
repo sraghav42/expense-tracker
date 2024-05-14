@@ -4,6 +4,7 @@ import Dashboard from '../pages/Dashboard';
 
 const ProtectedRoute =() => {
     const [isAuthorized, setIsAuthorized]=useState(false);
+    const [isLoading, setisLoading]=useState(true);
     
     useEffect(() => {
         const checkAuthorization=async () => {
@@ -20,11 +21,17 @@ const ProtectedRoute =() => {
             } catch(error){
                 console.log('Error connecting to authorization service',error);
                 setIsAuthorized(false);
+            } finally{
+                setisLoading(false);
             }
         }
 
         checkAuthorization();
     },[]);
+
+    if(isLoading){
+        return <div>Loading...</div>;
+    }
 
     if(isAuthorized===null){
         return null;

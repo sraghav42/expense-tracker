@@ -20,7 +20,7 @@ exports.register = async (req,res,next) =>{
         const user={id:results.insertId, username,hash};
 
         const token=jwt.sign({id:user.id, username:user.username},jwtSecret,{expiresIn:'1h'});
-        res.cookie('token',token,{
+        res.cookie('jwt',token,{
             httpOnly:true,
             maxAge:60*60*1000
         });
@@ -54,7 +54,7 @@ exports.login = async (req,res,next) => {
             const user=rows[0];
             console.log("Login user:",rows);
             const token=jwt.sign({id:user.id,username:user.username},jwtSecret,{expiresIn:'1h'});
-            res.cookie('token',token,{
+            res.cookie('jwt',token,{
                 httpOnly:true,
                 maxAge:60*60*1000
             });

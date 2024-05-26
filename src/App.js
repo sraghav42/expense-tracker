@@ -1,7 +1,7 @@
 import './App.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import ResponsiveAppBar from './components/Navbar';
 import Dashboard from './pages/Dashboard';
+import DetailedReport from "./pages/DetailedReport";
 import Login from './pages/Login';
 import Home from './pages/Home';
 import Register from './pages/Register';
@@ -15,12 +15,10 @@ function App() {
         <Route path='/' element={<Home />} />
         <Route path='/register' element={<Register />} />
         <Route path='/login' element={<Login />} />
-        <Route path='/dashboard' element={
-          <div>
-            <ResponsiveAppBar/>
-            <ProtectedRoute/>
-          </div>
-        } />
+        <Route path='/dashboard' 
+               element={<ProtectedRoute Component={Dashboard}/>}/>
+        <Route path='/detailed-report' 
+               element={<ProtectedRoute Component={DetailedReport}/>}/>
       </Routes>
     </Router>
   );

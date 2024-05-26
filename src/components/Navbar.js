@@ -14,7 +14,7 @@ import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 import {Link} from "react-router-dom";
 
-const pages = ['Home', 'Detailed Report', 'Add Expense'];
+const pages = ['DashBoard', 'Detailed Report', 'Add Expense'];
 const settings = ['Account', 'Logout'];
 
 function ResponsiveAppBar() {
@@ -34,6 +34,28 @@ function ResponsiveAppBar() {
 
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
+  };
+
+  const handleLogout = async() =>{
+    try{
+      const response = await fetch('http://localhost:5000/logout',{
+        method:'GET',
+        credentials:'include',
+        headers:{
+          'Content-Type':'application/json'
+        },
+      });
+
+      if(response.ok){
+        console.log('Logged out successfully');
+        window.location.href='http://localhost:3000/';
+      }
+      else{
+        console.log('Logout Failed');
+      }
+    } catch(err){
+      console.log('Error in logout API : ',err);
+    }
   };
 
   return (
@@ -151,7 +173,9 @@ function ResponsiveAppBar() {
               onClose={handleCloseUserMenu}
             >
               {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
+                <MenuItem key={setting} onClick={()=>{
+                  handleLogout();
+                  handleCloseUserMenu();}}>
                   <Typography textAlign="center">{setting}</Typography>
                 </MenuItem>
               ))}

@@ -1,8 +1,8 @@
 import React, {useEffect,useState} from 'react';
 import {Navigate} from 'react-router-dom';
-import Dashboard from '../pages/Dashboard';
+import ResponsiveAppBar from '../components/Navbar';
 
-const ProtectedRoute =() => {
+const ProtectedRoute =({Component}) => {
     const [isAuthorized, setIsAuthorized]=useState(false);
     const [isLoading, setisLoading]=useState(true);
     
@@ -37,7 +37,12 @@ const ProtectedRoute =() => {
         return null;
     }
 
-    return isAuthorized ? (<Dashboard />): (<Navigate to="/login"/>);
+    return isAuthorized ? (
+        <>
+            <ResponsiveAppBar/>
+            <Component/>
+        </>
+    ): (<Navigate to="/login"/>);
 }
 
 export default ProtectedRoute;

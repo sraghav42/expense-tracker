@@ -23,7 +23,16 @@ app.use(cookieParser());
 app.use(express.json());
 app.use("/api/auth",require("./src/auth/Route"));
 app.get("/tokencheck",userAuth, (req, res) => res.send("User Route"));
-app.get("/basic", userAuth, (req, res) => res.send("User Route"));
+app.get("/getuser",userAuth,async (req,res)=>{
+    const connection = getConnection();
+    const [rows]=await connection.query('SELECT * FROM users WHERE user_id = ?', [req.userId])
+    if(rows.length>0){
+        res.json(rows[0]);
+    }
+    else{
+        res.status(404).json({message:'User not found'});
+    }
+});
 app.get('/logout',(req,res) => {
     res.cookie("jwt","",{ maxAge:"1"})
     res.status(200).json({message:"Logged out successfully"})

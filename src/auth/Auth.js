@@ -70,3 +70,20 @@ exports.login = async (req,res,next) => {
         return res.status(400).json({message:"An error occured",error:error.message});
     }
 };
+
+exports.getuser=async(req,res,next) =>{
+    const connection=await getConnection();
+    
+    try{
+        const [rows]=await connection.query('SELECT * FROM users_data WHERE user_id = ?', [req.id]);
+
+        if(rows.kength>0){
+            res.json(rows[0]);
+        }
+        else{
+            res.status(404).json({message:'User not found'});
+        }
+    }catch(error){
+        res.status(404).json({message:'User not found'});
+    }
+};

@@ -2,6 +2,70 @@
 
 {% block title %}Spendly — Track Every Rupee{% endblock %}
 
+{% block head %}
+<style>
+    /* Modal Styles */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.85);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        padding: 20px;
+    }
+
+    .modal-container {
+        position: relative;
+        width: 100%;
+        max-width: 900px;
+        background: #000;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    .video-wrapper {
+        position: relative;
+        padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+        height: 0;
+    }
+
+    .video-wrapper iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: 0;
+    }
+
+    .modal-close {
+        position: absolute;
+        top: -40px;
+        right: 0;
+        background: none;
+        border: none;
+        color: white;
+        font-size: 2rem;
+        cursor: pointer;
+        line-height: 1;
+    }
+
+    .modal-overlay.active {
+        display: flex;
+    }
+
+    body.modal-open {
+        overflow: hidden;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 
 <section class="hero hero-centered">
@@ -19,7 +83,7 @@
         </p>
         <div class="hero-actions-v2">
             <a href="{{ url_for('register') }}" class="btn-black">Create free account</a>
-            <a href="#" class="btn-black">See how it works</a>
+            <a href="#" class="btn-black" id="btn-watch-demo">See how it works</a>
         </div>
     </div>
     <div class="hero-visual-v2">
@@ -72,6 +136,16 @@
     </div>
 </section>
 
+<!-- Video Modal -->
+<div id="videoModal" class="modal-overlay">
+    <div class="modal-container">
+        <button class="modal-close" id="closeModal">&times;</button>
+        <div class="video-wrapper">
+            <iframe id="demoVideo" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        </div>
+    </div>
+</div>
+
 <section class="features">
     <div class="features-inner">
         <div class="feature-card">
@@ -101,3 +175,47 @@
 </section>
 
 {% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const btnWatchDemo = document.getElementById('btn-watch-demo');
+        const videoModal = document.getElementById('videoModal');
+        const closeModal = document.getElementById('closeModal');
+        const demoVideo = document.getElementById('demoVideo');
+        const youtubeUrl = "https://www.youtube.com/embed/YE7VzlLtp-4?autoplay=1&mute=1"; // New placeholder (Big Buck Bunny)
+
+        // Open Modal
+        btnWatchDemo.addEventListener('click', function(e) {
+            e.preventDefault();
+            demoVideo.src = youtubeUrl;
+            videoModal.classList.add('active');
+            document.body.classList.add('modal-open');
+        });
+
+        // Close Modal
+        function handleClose() {
+            videoModal.classList.remove('active');
+            document.body.classList.remove('modal-open');
+            demoVideo.src = ""; // Stop video by clearing src
+        }
+
+        closeModal.addEventListener('click', handleClose);
+
+        // Close on outside click
+        videoModal.addEventListener('click', function(e) {
+            if (e.target === videoModal) {
+                handleClose();
+            }
+        });
+
+        // Close on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && videoModal.classList.contains('active')) {
+                handleClose();
+            }
+        });
+    });
+</script>
+{% endblock %}
+

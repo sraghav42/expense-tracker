@@ -83,3 +83,23 @@ def seed_db():
     
     conn.commit()
     conn.close()
+
+def get_user_by_email(email):
+    """Returns a user record by email, or None if not found."""
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
+    user = cursor.fetchone()
+    conn.close()
+    return user
+
+def create_user(name, email, password_hash):
+    """Inserts a new user into the database."""
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute(
+        "INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)",
+        (name, email, password_hash)
+    )
+    conn.commit()
+    conn.close()

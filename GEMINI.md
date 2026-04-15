@@ -1,51 +1,104 @@
-# Spendly — Personal Expense Tracker
+## Project overview
 
-Spendly is a Python/Flask-based web application designed to help users track their personal expenses. It features a modern Neo-Brutalist user interface and uses SQLite for data storage. The project is structured as a guided learning template, with several placeholder routes and database logic to be implemented.
+Spendly is a lightweight personal expense tracker built with Flask and SQLite.
 
-## Core Technologies
-- **Backend:** [Flask](https://flask.palletsprojects.com/) (Python)
-- **Database:** SQLite (SQLAlchemy is not used; direct SQLite interactions are expected)
-- **Frontend:** HTML5, Jinja2 Templates, Vanilla CSS (Neo-Brutalist style), Vanilla JavaScript
-- **Testing:** [pytest](https://docs.pytest.org/), `pytest-flask`
+---
 
 ## Architecture
-Spendly follows a monolithic Flask architecture:
-- `app.py`: Central application file containing route definitions and Flask configuration.
-- `database/db.py`: Modularized database logic for connection management and schema initialization.
-- `templates/`: Jinja2 templates for rendering server-side views.
-- `static/`: Public assets, including a comprehensive `style.css` defining the project's visual identity.
+```
+spendly/
+├── app.py              # All routes — single file, no blueprints
+├── database/
+│   └── db.py           # SQLite helpers: get_db(), init_db(), seed_db()
+├── templates/
+│   ├── base.html       # Shared layout — all templates must extend this
+│   └── *.html          # One template per page
+├── static/
+│   ├── css/
+│   │   ├── style.css       # Global styles
+│   │   └── landing.css     # Landing-page-only styles
+│   └── js/
+│       └── main.js         # Vanilla JS only
+└── requirements.txt
+```
 
-## Building and Running
+**Where things belong:**
+- New routes → `app.py` only, no blueprints
+- DB logic → `database/db.py` only, never inline in routes
+- New pages → new `.html` file extending `base.html`
+- Page-specific styles → new `.css` file, not inline `<style>` tags
 
-### Prerequisites
-- Python 3.8+
-- Virtual Environment (recommended)
+---
 
-### Installation
-1.  **Set up Virtual Environment:**
-    ```powershell
-    python -m venv venv
-    .\venv\Scripts\activate
-    ```
-2.  **Install Dependencies:**
-    ```powershell
-    pip install -r requirements.txt
-    ```
+## Code style
 
-### Execution
-1.  **Run Application:**
-    ```powershell
-    python app.py
-    ```
-    The application defaults to `http://127.0.0.1:5001`.
+- Python: PEP 8, snake_case for all variables and functions
+- Templates: Jinja2 with `url_for()` for every internal link — never hardcode URLs
+- Route functions: one responsibility only — fetch data, render template, done
+- DB queries: always use parameterized queries (`?` placeholders) — never f-strings in SQL
+- Error handling: use `abort()` for HTTP errors, not bare `return "error string"`
 
-2.  **Run Tests:**
-    ```powershell
-    pytest
-    ```
+---
 
-## Development Conventions
-- **Neo-Brutalist Styling:** Adhere to the established CSS variables and design language in `static/css/style.css` (e.g., solid shadows, thick borders, high contrast).
-- **Vanilla JavaScript:** Prefer vanilla JavaScript for interactive elements (like the video modal on the landing page) over external libraries.
-- **SQLite Primitives:** Database logic in `database/db.py` should focus on raw SQL queries and standard SQLite connection handling.
-- **Incremental Implementation:** Follow the "Step" markers in comments (e.g., "Step 1 — Database Setup") when implementing new features.
+## Tech constraints
+
+- **Flask only** — no FastAPI, no Django, no other web frameworks
+- **SQLite only** — no PostgreSQL, no SQLAlchemy ORM, no external DB
+- **Vanilla JS only** — no React, no jQuery, no npm packages
+- **No new pip packages** — work within `requirements.txt` as-is unless explicitly told otherwise
+- Python 3.10+ assumed — f-strings and `match` statements are fine
+
+---
+
+## Commands
+```bash
+# Setup
+python -m venv venv
+source venv/bin/activate          # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+
+# Run dev server (port 5001)
+python app.py
+
+# Run all tests
+pytest
+
+# Run a specific test file
+pytest tests/test_foo.py
+
+# Run a specific test by name
+pytest -k "test_name"
+
+# Run tests with output visible
+pytest -s
+```
+
+---
+
+## Implemented vs stub routes
+
+| Route | Status |
+|---|---|
+| `GET /` | Implemented — renders `landing.html` |
+| `GET /register` | Implemented — renders `register.html` |
+| `GET /login` | Implemented — renders `login.html` |
+| `GET /logout` | Stub — Step 3 |
+| `GET /profile` | Stub — Step 4 |
+| `GET /expenses/add` | Stub — Step 7 |
+| `GET /expenses/<id>/edit` | Stub — Step 8 |
+| `GET /expenses/<id>/delete` | Stub — Step 9 |
+
+**Do not implement a stub route unless the active task explicitly targets that step.**
+
+---
+
+## Warnings and things to avoid
+
+- **Never use raw string returns for stub routes** once a step is implemented — always render a template
+- **Never hardcode URLs** in templates — always use `url_for()`
+- **Never put DB logic in route functions** — it belongs in `database/db.py`
+- **Never install new packages** mid-feature without flagging it — keep `requirements.txt` in sync
+- **Never use JS frameworks** — the frontend is intentionally vanilla
+- **`database/db.py` is currently empty** — do not assume helpers exist until the step that implements them
+- **FK enforcement is manual** — SQLite foreign keys are off by default; `get_db()` must run `PRAGMA foreign_keys = ON` on every connection
+- The app runs on **port 5001**, not the Flask default 5000 — don't change this

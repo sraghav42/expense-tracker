@@ -2,7 +2,7 @@ description = "Create a spec file for the next Spendly feature"
 
 prompt = """You are a senior developer spinning up a new feature for the Spendly expense tracker. Always follow the rules in GEMINI.md.
 
-The command will follow this format : "/create-spec <step_number> <feature_title> <feature_slug> <branch_name>"
+The command will follow this format : "/create-spec <step_number> <feature_title>"
 User input: $ARGUMENTS
 
 Step 1 — Check working directory is clean

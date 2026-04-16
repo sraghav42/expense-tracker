@@ -1,13 +1,25 @@
-from flask import Flask, render_template, request, redirect, url_for
-from database.db import init_db, seed_db, get_user_by_email, create_user
-from werkzeug.security import generate_password_hash
+from flask import Flask, render_template, request, redirect, url_for, session, g
+from database.db import init_db, seed_db, get_user_by_email, create_user, get_user_by_id
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
+app.secret_key = 'dev_key_for_session_management'
 
 # Initialize and seed database on startup
 with app.app_context():
     init_db()
     seed_db()
+
+
+@app.before_request
+def load_logged_in_user():
+    """Load the user object from the database based on session data."""
+    user_id = session.get("user_id")
+
+    if user_id is None:
+        g.user = None
+    else:
+        g.user = get_user_by_id(user_id)
 
 
 # ------------------------------------------------------------------ #
@@ -21,6 +33,9 @@ def landing():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
+    if g.user:
+        return redirect(url_for("landing"))
+
     if request.method == "POST":
         name = request.form.get("name")
         email = request.form.get("email")
@@ -45,8 +60,24 @@ def register():
     return render_template("register.html")
 
 
-@app.route("/login")
+@app.route("/login", methods=["GET", "POST"])
 def login():
+    if g.user:
+        return redirect(url_for("landing"))
+
+    if request.method == "POST":
+        email = request.form.get("email")
+        password = request.form.get("password")
+
+        user = get_user_by_email(email)
+
+        if user and check_password_hash(user["password_hash"], password):
+            session.clear()
+            session["user_id"] = user["id"]
+            return redirect(url_for("landing"))
+
+        return render_template("login.html", error="Invalid email or password.")
+
     return render_template("login.html")
 
 
@@ -66,7 +97,8 @@ def privacy():
 
 @app.route("/logout")
 def logout():
-    return "Logout — coming in Step 3"
+    session.clear()
+    return redirect(url_for("landing"))
 
 
 @app.route("/profile")

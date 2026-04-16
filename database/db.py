@@ -103,3 +103,12 @@ def create_user(name, email, password_hash):
     )
     conn.commit()
     conn.close()
+
+def get_user_by_id(user_id):
+    """Returns a user record by ID, or None if not found."""
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,))
+    user = cursor.fetchone()
+    conn.close()
+    return user

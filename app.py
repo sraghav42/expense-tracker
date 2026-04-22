@@ -74,7 +74,7 @@ def login():
         if user and check_password_hash(user["password_hash"], password):
             session.clear()
             session["user_id"] = user["id"]
-            return redirect(url_for("landing"))
+            return redirect(url_for("profile"))
 
         return render_template("login.html", error="Invalid email or password.")
 
@@ -103,7 +103,44 @@ def logout():
 
 @app.route("/profile")
 def profile():
-    return "Profile page — coming in Step 4"
+    if not session.get("user_id"):
+        return redirect(url_for("login"))
+
+    # Hardcoded data for Step 4 UI implementation
+    user_data = {
+        "name": "Alex Smith",
+        "email": "alex.smith@example.com",
+        "initials": "AS",
+        "member_since": "January 2024"
+    }
+
+    stats = {
+        "total_spent": "$1,250.00",
+        "transaction_count": 12,
+        "top_category": "Groceries"
+    }
+
+    transactions = [
+        {"date": "2024-04-20", "description": "Weekly Groceries", "category": "Food", "amount": "$85.00"},
+        {"date": "2024-04-18", "description": "Monthly Internet", "category": "Utilities", "amount": "$60.00"},
+        {"date": "2024-04-15", "description": "Gas Station", "category": "Transport", "amount": "$45.00"}
+    ]
+
+    category_breakdown = [
+        {"name": "Food", "total": "$450.00"},
+        {"name": "Utilities", "total": "$300.00"},
+        {"name": "Transport", "total": "$200.00"},
+        {"name": "Entertainment", "total": "$150.00"},
+        {"name": "Other", "total": "$150.00"}
+    ]
+
+    return render_template(
+        "profile.html",
+        user=user_data,
+        stats=stats,
+        transactions=transactions,
+        categories=category_breakdown
+    )
 
 
 @app.route("/expenses/add")

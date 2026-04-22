@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Profile | Spendly{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <!-- Left Column: User Info & Category Breakdown -->
+    <aside class="profile-sidebar">
+        <div class="user-card">
+            <div class="avatar-circle">
+                {{ user.initials }}
+            </div>
+            <h1 class="user-name">{{ user.name }}</h1>
+            <p class="user-email">{{ user.email }}</p>
+            <div class="user-meta">
+                <i data-lucide="calendar" style="width: 16px; height: 16px; vertical-align: middle; margin-right: 4px;"></i>
+                Member since {{ user.member_since }}
+            </div>
+            
+            <div class="category-breakdown">
+                <h2 class="section-title" style="font-size: 1.2rem; margin-top: 2.5rem;">
+                    <i data-lucide="pie-chart" style="width: 20px; height: 20px;"></i>
+                    Breakdown
+                </h2>
+                <div class="category-list">
+                    {% for cat in categories %}
+                    <div class="category-item">
+                        <div class="category-info">
+                            <span>
+                                <i data-lucide="tag" style="width: 14px; height: 14px; vertical-align: middle; margin-right: 4px;"></i>
+                                {{ cat.name }}
+                            </span>
+                            <span>{{ cat.total }}</span>
+                        </div>
+                        <div class="category-progress">
+                            <div class="category-fill fill-{{ cat.name|lower }}"></div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Right Column: Stats & Transactions -->
+    <section class="profile-main">
+        <div class="profile-stats">
+            <div class="stat-card">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                    <span class="stat-label">Total Spent</span>
+                    <i data-lucide="credit-card" style="color: var(--accent-pink); width: 20px; height: 20px;"></i>
+                </div>
+                <span class="stat-value">{{ stats.total_spent }}</span>
+            </div>
+            <div class="stat-card">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                    <span class="stat-label">Transactions</span>
+                    <i data-lucide="list" style="color: var(--accent-cyan); width: 20px; height: 20px;"></i>
+                </div>
+                <span class="stat-value">{{ stats.transaction_count }}</span>
+            </div>
+            <div class="stat-card">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                    <span class="stat-label">Top Category</span>
+                    <i data-lucide="award" style="color: var(--accent-yellow); width: 20px; height: 20px;"></i>
+                </div>
+                <span class="stat-value">{{ stats.top_category }}</span>
+            </div>
+        </div>
+
+        <h2 class="section-title">
+            <i data-lucide="history" style="width: 24px; height: 24px;"></i>
+            Recent Activity
+        </h2>
+        
+        <div class="table-container">
+            <table class="tx-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Category</th>
+                        <th class="amount-col">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tx in transactions %}
+                    <tr>
+                        <td style="color: var(--ink-muted); font-size: 0.9rem;">
+                            <i data-lucide="calendar-days" style="width: 14px; height: 14px; vertical-align: middle; margin-right: 4px;"></i>
+                            {{ tx.date }}
+                        </td>
+                        <td>{{ tx.description }}</td>
+                        <td>
+                            <span class="category-badge badge-{{ tx.category|lower }}">
+                                {{ tx.category }}
+                            </span>
+                        </td>
+                        <td class="amount-col">{{ tx.amount }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div style="text-align: right;">
+            <a href="#" class="btn-ghost" style="padding: 0.6rem 1.5rem; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px;">
+                <i data-lucide="plus-circle" style="width: 18px; height: 18px;"></i>
+                Add Expense
+            </a>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}

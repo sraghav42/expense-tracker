@@ -163,9 +163,12 @@
 }
 
 .badge-food { background: var(--accent-pink); }
-.badge-utilities { background: var(--accent-cyan); }
+.badge-bills { background: var(--accent-cyan); }
 .badge-transport { background: var(--accent-green); }
 .badge-entertainment { background: var(--accent-yellow); }
+.badge-shopping { background: var(--accent-pink); }
+.badge-health { background: var(--accent-cyan); }
+.badge-other { background: var(--ink-faint); }
 
 .amount-col {
     font-family: var(--font-display);
@@ -208,8 +211,10 @@
     border-right: 2px solid var(--ink);
 }
 
-.fill-food { background: var(--accent-pink); width: 45%; }
-.fill-utilities { background: var(--accent-cyan); width: 30%; }
-.fill-transport { background: var(--accent-green); width: 20%; }
-.fill-entertainment { background: var(--accent-yellow); width: 15%; }
-.fill-other { background: var(--ink-faint); width: 15%; }
+.fill-food { background: var(--accent-pink); }
+.fill-bills { background: var(--accent-cyan); }
+.fill-transport { background: var(--accent-green); }
+.fill-entertainment { background: var(--accent-yellow); }
+.fill-shopping { background: var(--accent-pink); }
+.fill-health { background: var(--accent-cyan); }
+.fill-other { background: var(--ink-faint); }

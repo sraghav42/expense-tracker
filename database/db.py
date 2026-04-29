@@ -112,3 +112,57 @@ def get_user_by_id(user_id):
     user = cursor.fetchone()
     conn.close()
     return user
+
+def get_recent_transactions(user_id):
+    """Returns a list of recent transactions for a given user ID."""
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT * FROM expenses WHERE user_id = ? ORDER BY date DESC, created_at DESC",
+        (user_id,)
+    )
+    transactions = cursor.fetchall()
+    conn.close()
+    return transactions
+
+def get_user_stats(user_id):
+    """Returns a dictionary of summary statistics for a given user ID."""
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    # Get total spent and transaction count
+    cursor.execute(
+        "SELECT SUM(amount) as total_spent, COUNT(*) as transaction_count FROM expenses WHERE user_id = ?",
+        (user_id,)
+    )
+    row = cursor.fetchone()
+    total_spent = row['total_spent'] if row['total_spent'] is not None else 0.0
+    transaction_count = row['transaction_count'] or 0
+    
+    # Get top category
+    cursor.execute(
+        "SELECT category FROM expenses WHERE user_id = ? GROUP BY category ORDER BY SUM(amount) DESC LIMIT 1",
+        (user_id,)
+    )
+    cat_row = cursor.fetchone()
+    top_category = cat_row['category'] if cat_row else "N/A"
+    
+    conn.close()
+    
+    return {
+        "total_spent": total_spent,
+        "transaction_count": transaction_count,
+        "top_category": top_category
+    }
+
+def get_category_breakdown(user_id):
+    """Returns a list of categories and their total spending for a given user ID."""
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT category, SUM(amount) as total FROM expenses WHERE user_id = ? GROUP BY category ORDER BY total DESC",
+        (user_id,)
+    )
+    breakdown = cursor.fetchall()
+    conn.close()
+    return breakdown

@@ -37,7 +37,7 @@
                             <span>{{ cat.total }}</span>
                         </div>
                         <div class="category-progress">
-                            <div class="category-fill fill-{{ cat.name|lower }}"></div>
+                            <div class="category-fill fill-{{ cat.name|lower }}" style="width: {{ cat.percentage }}%;"></div>
                         </div>
                     </div>
                     {% endfor %}
@@ -96,7 +96,7 @@
                         </td>
                         <td>{{ tx.description }}</td>
                         <td>
-                            <span class="category-badge badge-{{ tx.category|lower }}">
+                            <span class="category-badge badge-{{ tx.category|lower|replace(' ', '-') }}">
                                 {{ tx.category }}
                             </span>
                         </td>

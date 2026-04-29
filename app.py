@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, g
-from database.db import init_db, seed_db, get_user_by_email, create_user, get_user_by_id
+from database.db import init_db, seed_db, get_user_by_email, create_user, get_user_by_id, get_recent_transactions, get_user_stats, get_category_breakdown
 from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = 'dev_key_for_session_management'
@@ -103,36 +104,52 @@ def logout():
 
 @app.route("/profile")
 def profile():
-    if not session.get("user_id"):
+    if not g.user:
         return redirect(url_for("login"))
 
-    # Hardcoded data for Step 4 UI implementation
+    # Format user info for the UI
+    created_at = datetime.strptime(g.user["created_at"], "%Y-%m-%d %H:%M:%S")
+    member_since = created_at.strftime("%B %Y")
+    
+    name_parts = g.user["name"].split()
+    initials = "".join([part[0].upper() for part in name_parts[:2]])
+    
     user_data = {
-        "name": "Alex Smith",
-        "email": "alex.smith@example.com",
-        "initials": "AS",
-        "member_since": "January 2024"
+        "name": g.user["name"],
+        "email": g.user["email"],
+        "initials": initials,
+        "member_since": member_since
     }
 
+    stats_data = get_user_stats(g.user["id"])
     stats = {
-        "total_spent": "$1,250.00",
-        "transaction_count": 12,
-        "top_category": "Groceries"
+        "total_spent": f"₹{stats_data['total_spent']:,.2f}",
+        "transaction_count": stats_data["transaction_count"],
+        "top_category": stats_data["top_category"]
     }
 
+    db_transactions = get_recent_transactions(g.user["id"])
     transactions = [
-        {"date": "2024-04-20", "description": "Weekly Groceries", "category": "Food", "amount": "$85.00"},
-        {"date": "2024-04-18", "description": "Monthly Internet", "category": "Utilities", "amount": "$60.00"},
-        {"date": "2024-04-15", "description": "Gas Station", "category": "Transport", "amount": "$45.00"}
+        {
+            "date": t["date"],
+            "description": t["description"],
+            "category": t["category"],
+            "amount": f"₹{t['amount']:.2f}"
+        }
+        for t in db_transactions
     ]
 
-    category_breakdown = [
-        {"name": "Food", "total": "$450.00"},
-        {"name": "Utilities", "total": "$300.00"},
-        {"name": "Transport", "total": "$200.00"},
-        {"name": "Entertainment", "total": "$150.00"},
-        {"name": "Other", "total": "$150.00"}
-    ]
+    db_categories = get_category_breakdown(g.user["id"])
+    total_spent_raw = stats_data['total_spent']
+    category_breakdown = []
+    
+    for cat in db_categories:
+        percentage = (cat["total"] / total_spent_raw * 100) if total_spent_raw > 0 else 0
+        category_breakdown.append({
+            "name": cat["category"],
+            "total": f"₹{cat['total']:,.2f}",
+            "percentage": percentage
+        })
 
     return render_template(
         "profile.html",

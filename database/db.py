@@ -1,11 +1,14 @@
 import sqlite3
+from flask import current_app
 from werkzeug.security import generate_password_hash
 
 DATABASE = 'spendly.db'
 
 def get_db():
     """Returns a SQLite connection with row_factory and foreign keys enabled."""
-    conn = sqlite3.connect(DATABASE)
+    # Use Flask config if available (for tests), otherwise fallback to default
+    db_path = current_app.config.get('DATABASE', DATABASE) if current_app else DATABASE
+    conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON;")
     return conn
@@ -113,37 +116,47 @@ def get_user_by_id(user_id):
     conn.close()
     return user
 
-def get_recent_transactions(user_id):
-    """Returns a list of recent transactions for a given user ID."""
+def get_recent_transactions(user_id, date_from=None, date_to=None):
+    """Returns a list of transactions for a given user ID, optionally filtered by date."""
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute(
-        "SELECT * FROM expenses WHERE user_id = ? ORDER BY date DESC, created_at DESC",
-        (user_id,)
-    )
+    
+    query = "SELECT * FROM expenses WHERE user_id = ?"
+    params = [user_id]
+    
+    if date_from and date_to:
+        query += " AND date BETWEEN ? AND ?"
+        params.extend([date_from, date_to])
+        
+    query += " ORDER BY date DESC, created_at DESC"
+    
+    cursor.execute(query, params)
     transactions = cursor.fetchall()
     conn.close()
     return transactions
 
-def get_user_stats(user_id):
-    """Returns a dictionary of summary statistics for a given user ID."""
+def get_user_stats(user_id, date_from=None, date_to=None):
+    """Returns a dictionary of summary statistics for a given user ID, optionally filtered by date."""
     conn = get_db()
     cursor = conn.cursor()
     
+    query_base = "FROM expenses WHERE user_id = ?"
+    params = [user_id]
+    
+    if date_from and date_to:
+        query_base += " AND date BETWEEN ? AND ?"
+        params.extend([date_from, date_to])
+    
     # Get total spent and transaction count
-    cursor.execute(
-        "SELECT SUM(amount) as total_spent, COUNT(*) as transaction_count FROM expenses WHERE user_id = ?",
-        (user_id,)
-    )
+    query_stats = "SELECT SUM(amount) as total_spent, COUNT(*) as transaction_count " + query_base
+    cursor.execute(query_stats, params)
     row = cursor.fetchone()
     total_spent = row['total_spent'] if row['total_spent'] is not None else 0.0
     transaction_count = row['transaction_count'] or 0
     
     # Get top category
-    cursor.execute(
-        "SELECT category FROM expenses WHERE user_id = ? GROUP BY category ORDER BY SUM(amount) DESC LIMIT 1",
-        (user_id,)
-    )
+    query_top = "SELECT category " + query_base + " GROUP BY category ORDER BY SUM(amount) DESC LIMIT 1"
+    cursor.execute(query_top, params)
     cat_row = cursor.fetchone()
     top_category = cat_row['category'] if cat_row else "N/A"
     
@@ -155,14 +168,21 @@ def get_user_stats(user_id):
         "top_category": top_category
     }
 
-def get_category_breakdown(user_id):
-    """Returns a list of categories and their total spending for a given user ID."""
+def get_category_breakdown(user_id, date_from=None, date_to=None):
+    """Returns a list of categories and their total spending for a given user ID, optionally filtered by date."""
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute(
-        "SELECT category, SUM(amount) as total FROM expenses WHERE user_id = ? GROUP BY category ORDER BY total DESC",
-        (user_id,)
-    )
+    
+    query = "SELECT category, SUM(amount) as total FROM expenses WHERE user_id = ?"
+    params = [user_id]
+    
+    if date_from and date_to:
+        query += " AND date BETWEEN ? AND ?"
+        params.extend([date_from, date_to])
+        
+    query += " GROUP BY category ORDER BY total DESC"
+    
+    cursor.execute(query, params)
     breakdown = cursor.fetchall()
     conn.close()
     return breakdown

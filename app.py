@@ -1,7 +1,7 @@
-from flask import Flask, render_template, request, redirect, url_for, session, g
+from flask import Flask, render_template, request, redirect, url_for, session, g, flash
 from database.db import init_db, seed_db, get_user_by_email, create_user, get_user_by_id, get_recent_transactions, get_user_stats, get_category_breakdown
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 app.secret_key = 'dev_key_for_session_management'
@@ -107,6 +107,41 @@ def profile():
     if not g.user:
         return redirect(url_for("login"))
 
+    # 1. Handle date filtering
+    date_from_raw = request.args.get("date_from")
+    date_to_raw = request.args.get("date_to")
+    
+    date_from = None
+    date_to = None
+    
+    if date_from_raw and date_to_raw:
+        try:
+            # Validate formats
+            datetime.strptime(date_from_raw, "%Y-%m-%d")
+            datetime.strptime(date_to_raw, "%Y-%m-%d")
+            
+            if date_from_raw > date_to_raw:
+                flash("Start date must be before end date.")
+            else:
+                date_from = date_from_raw
+                date_to = date_to_raw
+        except ValueError:
+            # Silent fallback if malformed
+            pass
+
+    # 2. Compute preset dates for the UI
+    today = datetime.now()
+    this_month_start = today.replace(day=1).strftime("%Y-%m-%d")
+    last_3_months_start = (today - timedelta(days=90)).strftime("%Y-%m-%d")
+    last_6_months_start = (today - timedelta(days=180)).strftime("%Y-%m-%d")
+    today_str = today.strftime("%Y-%m-%d")
+    
+    presets = {
+        "this_month": {"from": this_month_start, "to": today_str},
+        "last_3_months": {"from": last_3_months_start, "to": today_str},
+        "last_6_months": {"from": last_6_months_start, "to": today_str}
+    }
+
     # Format user info for the UI
     created_at = datetime.strptime(g.user["created_at"], "%Y-%m-%d %H:%M:%S")
     member_since = created_at.strftime("%B %Y")
@@ -121,14 +156,14 @@ def profile():
         "member_since": member_since
     }
 
-    stats_data = get_user_stats(g.user["id"])
+    stats_data = get_user_stats(g.user["id"], date_from, date_to)
     stats = {
         "total_spent": f"₹{stats_data['total_spent']:,.2f}",
         "transaction_count": stats_data["transaction_count"],
         "top_category": stats_data["top_category"]
     }
 
-    db_transactions = get_recent_transactions(g.user["id"])
+    db_transactions = get_recent_transactions(g.user["id"], date_from, date_to)
     transactions = [
         {
             "date": t["date"],
@@ -139,7 +174,7 @@ def profile():
         for t in db_transactions
     ]
 
-    db_categories = get_category_breakdown(g.user["id"])
+    db_categories = get_category_breakdown(g.user["id"], date_from, date_to)
     total_spent_raw = stats_data['total_spent']
     category_breakdown = []
     
@@ -156,7 +191,10 @@ def profile():
         user=user_data,
         stats=stats,
         transactions=transactions,
-        categories=category_breakdown
+        categories=category_breakdown,
+        date_from=date_from,
+        date_to=date_to,
+        presets=presets
     )
 
 

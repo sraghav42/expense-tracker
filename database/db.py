@@ -186,3 +186,14 @@ def get_category_breakdown(user_id, date_from=None, date_to=None):
     breakdown = cursor.fetchall()
     conn.close()
     return breakdown
+
+def add_expense(user_id, amount, category, date, description):
+    """Inserts a new expense record into the database."""
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute(
+        "INSERT INTO expenses (user_id, amount, category, date, description) VALUES (?, ?, ?, ?, ?)",
+        (user_id, amount, category, date, description)
+    )
+    conn.commit()
+    conn.close()

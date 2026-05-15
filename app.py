@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session, g, flash
-from database.db import init_db, seed_db, get_user_by_email, create_user, get_user_by_id, get_recent_transactions, get_user_stats, get_category_breakdown
+from database.db import init_db, seed_db, get_user_by_email, create_user, get_user_by_id, get_recent_transactions, get_user_stats, get_category_breakdown, add_expense as db_add_expense
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 
@@ -206,9 +206,45 @@ def analytics():
     return render_template("analytics.html")
 
 
-@app.route("/expenses/add")
+@app.route("/expenses/add", methods=["GET", "POST"])
 def add_expense():
-    return "Add expense — coming in Step 7"
+    if not g.user:
+        return redirect(url_for("login"))
+
+    today_str = datetime.today().strftime('%Y-%m-%d')
+    allowed_categories = ["Food", "Transport", "Bills", "Health", "Entertainment", "Shopping", "Other"]
+
+    if request.method == "POST":
+        amount = request.form.get("amount")
+        category = request.form.get("category")
+        date = request.form.get("date")
+        description = request.form.get("description")
+
+        # 1. Check for missing fields
+        if not amount or not description or not date or not category:
+            flash("All fields are required.")
+            return render_template("add_expense.html", amount=amount, category=category, date=date, description=description, today_str=today_str)
+
+        # 2. Validate amount
+        try:
+            amount_float = float(amount)
+            if amount_float <= 0:
+                flash("Amount must be greater than zero.")
+                return render_template("add_expense.html", amount=amount, category=category, date=date, description=description, today_str=today_str)
+        except ValueError:
+            flash("Invalid amount.")
+            return render_template("add_expense.html", amount=amount, category=category, date=date, description=description, today_str=today_str)
+
+        # 3. Validate category
+        if category not in allowed_categories:
+            flash("Invalid category selected.")
+            return render_template("add_expense.html", amount=amount, category=category, date=date, description=description, today_str=today_str)
+
+        db_add_expense(g.user["id"], amount_float, category, date, description)
+        flash("Expense added successfully!")
+        return redirect(url_for("profile"))
+
+    return render_template("add_expense.html", today_str=today_str)
 
 
 @app.route("/expenses/<int:id>/edit")

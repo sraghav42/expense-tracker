@@ -319,3 +319,23 @@
 .fill-shopping { background: var(--accent-pink); }
 .fill-health { background: var(--accent-cyan); }
 .fill-other { background: var(--ink-faint); }
+
+/* Dashboard Header Row */
+.dashboard-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.dashboard-header-row .auth-title {
+    margin-bottom: 0;
+}
+
+.btn-new-expense {
+    padding: 0.6rem 1.5rem;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}

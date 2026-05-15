@@ -84,7 +84,7 @@ pytest -s
 | `GET /login` | Implemented — renders `login.html` |
 | `GET /logout` | Stub — Step 3 |
 | `GET /profile` | Stub — Step 4 |
-| `GET /expenses/add` | Stub — Step 7 |
+| `GET /expenses/add` | Implemented — Step 7 |
 | `GET /expenses/<id>/edit` | Stub — Step 8 |
 | `GET /expenses/<id>/delete` | Stub — Step 9 |
 

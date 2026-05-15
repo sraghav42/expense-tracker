@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics - Coming Soon | Spendly{% endblock %}
+
+{% block head %}
+<style>
+    .analytics-coming-soon {
+        min-height: calc(100vh - 70px - 200px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4rem 2rem;
+    }
+
+    .coming-soon-card {
+        background: var(--paper-card);
+        border: var(--border-thickness) solid var(--ink);
+        border-radius: var(--radius-lg);
+        padding: 4rem 3rem;
+        max-width: 700px;
+        width: 100%;
+        text-align: center;
+        box-shadow: 15px 15px 0px var(--ink);
+        transform: rotate(1deg);
+    }
+
+    .cs-icon {
+        font-size: 4rem;
+        margin-bottom: 2rem;
+        display: inline-block;
+        background: var(--accent-yellow);
+        padding: 1.5rem;
+        border: var(--border-thickness) solid var(--ink);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-solid-sm);
+        transform: rotate(-3deg);
+    }
+
+    .cs-title {
+        font-family: var(--font-display);
+        font-size: clamp(2.5rem, 5vw, 3.5rem);
+        color: var(--ink);
+        margin-bottom: 1.5rem;
+        text-transform: uppercase;
+        line-height: 1;
+    }
+
+    .cs-badge {
+        display: inline-block;
+        background: var(--accent-cyan);
+        color: var(--ink);
+        padding: 0.5rem 1.5rem;
+        border: 2px solid var(--ink);
+        border-radius: 50px;
+        font-weight: 800;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+        box-shadow: 3px 3px 0px var(--ink);
+    }
+
+    .cs-description {
+        font-size: 1.25rem;
+        color: var(--ink-soft);
+        margin-bottom: 3rem;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+        font-weight: 500;
+        line-height: 1.5;
+    }
+
+    .cs-features {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 4rem;
+        text-align: left;
+    }
+
+    .cs-feature-item {
+        background: var(--bg);
+        border: 2px solid var(--ink);
+        padding: 1rem;
+        border-radius: var(--radius-sm);
+        font-weight: 700;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .cs-feature-item i {
+        color: var(--accent-pink);
+    }
+
+    .cs-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        align-items: center;
+    }
+
+    .notify-form {
+        display: flex;
+        width: 100%;
+        max-width: 400px;
+        gap: 0;
+    }
+
+    .notify-input {
+        flex: 1;
+        padding: 0.8rem 1.2rem;
+        border: var(--border-thickness) solid var(--ink);
+        border-right: none;
+        border-top-left-radius: var(--radius-sm);
+        border-bottom-left-radius: var(--radius-sm);
+        font-family: var(--font-body);
+        font-weight: 600;
+        outline: none;
+    }
+
+    .btn-notify {
+        background: var(--accent-green);
+        color: var(--ink);
+        padding: 0.8rem 1.5rem;
+        border: var(--border-thickness) solid var(--ink);
+        border-top-right-radius: var(--radius-sm);
+        border-bottom-right-radius: var(--radius-sm);
+        font-family: var(--font-display);
+        font-weight: 800;
+        cursor: pointer;
+        text-transform: uppercase;
+        transition: background 0.2s;
+    }
+
+    .btn-notify:hover {
+        background: var(--accent-yellow);
+    }
+
+    @media (max-width: 600px) {
+        .coming-soon-card {
+            padding: 3rem 1.5rem;
+            transform: none;
+        }
+        .cs-features {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="analytics-coming-soon">
+    <div class="coming-soon-card">
+        <div class="cs-badge">Coming Q3 2026</div>
+        <div class="cs-icon">
+            <i data-lucide="bar-chart-big" style="width: 64px; height: 64px;"></i>
+        </div>
+        <h1 class="cs-title">Deep Insights <br> <span style="color: var(--accent-pink);">Coming Soon</span></h1>
+        <p class="cs-description">
+            We're building a powerful engine to help you visualize your spending patterns, track budgets, and master your money.
+        </p>
+
+        <div class="cs-features">
+            <div class="cs-feature-item">
+                <i data-lucide="pie-chart" style="width: 18px; height: 18px;"></i>
+                Spending Mix
+            </div>
+            <div class="cs-feature-item">
+                <i data-lucide="trending-up" style="width: 18px; height: 18px;"></i>
+                Month-over-Month
+            </div>
+            <div class="cs-feature-item">
+                <i data-lucide="target" style="width: 18px; height: 18px;"></i>
+                Budget Alerts
+            </div>
+        </div>
+
+        <div class="cs-actions">
+            <div class="notify-form">
+                <input type="email" class="notify-input" placeholder="your@email.com">
+                <button class="btn-notify">Notify Me</button>
+            </div>
+            <a href="{{ url_for('profile') }}" class="btn-ghost">Back to Profile</a>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.querySelector('.btn-notify').addEventListener('click', function() {
+        const email = document.querySelector('.notify-input').value;
+        if (email) {
+            alert('Great! We will notify ' + email + ' when analytics are live.');
+            document.querySelector('.notify-input').value = '';
+        } else {
+            alert('Please enter a valid email address.');
+        }
+    });
+</script>
+{% endblock %}

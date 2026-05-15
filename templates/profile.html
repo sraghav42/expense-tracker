@@ -46,8 +46,15 @@
         </div>
     </aside>
 
-    <!-- Right Column: Stats & Transactions -->
     <section class="profile-main">
+        <div class="dashboard-header-row">
+            <h1 class="auth-title">Dashboard</h1>
+            <a href="{{ url_for('add_expense') }}" class="btn-primary btn-new-expense">
+                <i data-lucide="plus-circle" style="width: 18px; height: 18px;"></i>
+                New Expense
+            </a>
+        </div>
+
         <div class="filter-bar">
             <div class="presets">
                 <a href="{{ url_for('profile', date_from=presets.this_month.from, date_to=presets.this_month.to) }}" 
@@ -135,13 +142,6 @@
                     {% endfor %}
                 </tbody>
             </table>
-        </div>
-        
-        <div style="text-align: right;">
-            <a href="#" class="btn-ghost" style="padding: 0.6rem 1.5rem; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px;">
-                <i data-lucide="plus-circle" style="width: 18px; height: 18px;"></i>
-                Add Expense
-            </a>
         </div>
     </section>
 </div>

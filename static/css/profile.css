@@ -277,6 +277,24 @@
     text-align: right;
 }
 
+.edit-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.4rem;
+    border-radius: var(--radius-sm);
+    transition: all 0.1s;
+}
+
+.edit-link:hover {
+    background: var(--accent-cyan);
+    transform: scale(1.1);
+}
+
+.edit-link:hover i {
+    color: var(--ink) !important;
+}
+
 /* Category Breakdown */
 .category-list {
     display: flex;

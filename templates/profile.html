@@ -122,6 +122,7 @@
                         <th>Description</th>
                         <th>Category</th>
                         <th class="amount-col">Amount</th>
+                        <th style="width: 50px;"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -138,6 +139,11 @@
                             </span>
                         </td>
                         <td class="amount-col">{{ tx.amount }}</td>
+                        <td style="text-align: right;">
+                            <a href="{{ url_for('edit_expense', id=tx.id) }}" class="edit-link" title="Edit Expense">
+                                <i data-lucide="pencil" style="width: 16px; height: 16px; color: var(--ink-muted);"></i>
+                            </a>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>

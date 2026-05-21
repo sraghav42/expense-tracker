@@ -1,10 +1,32 @@
-from flask import Flask, render_template, request, redirect, url_for, session, g, flash
-from database.db import init_db, seed_db, get_user_by_email, create_user, get_user_by_id, get_recent_transactions, get_user_stats, get_category_breakdown, add_expense as db_add_expense
+from flask import (
+    Flask,
+    render_template,
+    request,
+    redirect,
+    url_for,
+    session,
+    g,
+    flash,
+    abort,
+)
+from database.db import (
+    init_db,
+    seed_db,
+    get_user_by_email,
+    create_user,
+    get_user_by_id,
+    get_recent_transactions,
+    get_user_stats,
+    get_category_breakdown,
+    add_expense as db_add_expense,
+    get_expense_by_id,
+    update_expense,
+)
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 
 app = Flask(__name__)
-app.secret_key = 'dev_key_for_session_management'
+app.secret_key = "dev_key_for_session_management"
 
 # Initialize and seed database on startup
 with app.app_context():
@@ -26,6 +48,7 @@ def load_logged_in_user():
 # ------------------------------------------------------------------ #
 # Routes                                                              #
 # ------------------------------------------------------------------ #
+
 
 @app.route("/")
 def landing():
@@ -50,7 +73,9 @@ def register():
         # 2. Check if user already exists
         existing_user = get_user_by_email(email)
         if existing_user:
-            return render_template("register.html", error="Email address already registered.")
+            return render_template(
+                "register.html", error="Email address already registered."
+            )
 
         # 3. Create user
         hashed_password = generate_password_hash(password)
@@ -96,6 +121,7 @@ def privacy():
 # Placeholder routes — students will implement these                  #
 # ------------------------------------------------------------------ #
 
+
 @app.route("/logout")
 def logout():
     session.clear()
@@ -110,16 +136,16 @@ def profile():
     # 1. Handle date filtering
     date_from_raw = request.args.get("date_from")
     date_to_raw = request.args.get("date_to")
-    
+
     date_from = None
     date_to = None
-    
+
     if date_from_raw and date_to_raw:
         try:
             # Validate formats
             datetime.strptime(date_from_raw, "%Y-%m-%d")
             datetime.strptime(date_to_raw, "%Y-%m-%d")
-            
+
             if date_from_raw > date_to_raw:
                 flash("Start date must be before end date.")
             else:
@@ -135,56 +161,61 @@ def profile():
     last_3_months_start = (today - timedelta(days=90)).strftime("%Y-%m-%d")
     last_6_months_start = (today - timedelta(days=180)).strftime("%Y-%m-%d")
     today_str = today.strftime("%Y-%m-%d")
-    
+
     presets = {
         "this_month": {"from": this_month_start, "to": today_str},
         "last_3_months": {"from": last_3_months_start, "to": today_str},
-        "last_6_months": {"from": last_6_months_start, "to": today_str}
+        "last_6_months": {"from": last_6_months_start, "to": today_str},
     }
 
     # Format user info for the UI
     created_at = datetime.strptime(g.user["created_at"], "%Y-%m-%d %H:%M:%S")
     member_since = created_at.strftime("%B %Y")
-    
+
     name_parts = g.user["name"].split()
     initials = "".join([part[0].upper() for part in name_parts[:2]])
-    
+
     user_data = {
         "name": g.user["name"],
         "email": g.user["email"],
         "initials": initials,
-        "member_since": member_since
+        "member_since": member_since,
     }
 
     stats_data = get_user_stats(g.user["id"], date_from, date_to)
     stats = {
         "total_spent": f"₹{stats_data['total_spent']:,.2f}",
         "transaction_count": stats_data["transaction_count"],
-        "top_category": stats_data["top_category"]
+        "top_category": stats_data["top_category"],
     }
 
     db_transactions = get_recent_transactions(g.user["id"], date_from, date_to)
     transactions = [
         {
+            "id": t["id"],
             "date": t["date"],
             "description": t["description"],
             "category": t["category"],
-            "amount": f"₹{t['amount']:.2f}"
+            "amount": f"₹{t['amount']:.2f}",
         }
         for t in db_transactions
     ]
 
     db_categories = get_category_breakdown(g.user["id"], date_from, date_to)
-    total_spent_raw = stats_data['total_spent']
+    total_spent_raw = stats_data["total_spent"]
     category_breakdown = []
-    
+
     for cat in db_categories:
-        percentage = (cat["total"] / total_spent_raw * 100) if total_spent_raw > 0 else 0
-        category_breakdown.append({
-            "name": cat["category"],
-            "total": f"₹{cat['total']:,.2f}",
-            "percentage": percentage
-        })
+        percentage = (
+            (cat["total"] / total_spent_raw * 100) if total_spent_raw > 0 else 0
+        )
+        category_breakdown.append(
+            {
+                "name": cat["category"],
+                "total": f"₹{cat['total']:,.2f}",
+                "percentage": percentage,
+            }
+        )
 
     return render_template(
         "profile.html",
@@ -194,7 +225,7 @@ def profile():
         categories=category_breakdown,
         date_from=date_from,
         date_to=date_to,
-        presets=presets
+        presets=presets,
     )
 
 
@@ -202,7 +233,7 @@ def profile():
 def analytics():
     if not g.user:
         return redirect(url_for("login"))
-    
+
     return render_template("analytics.html")
 
 
@@ -211,8 +242,16 @@ def add_expense():
     if not g.user:
         return redirect(url_for("login"))
 
-    today_str = datetime.today().strftime('%Y-%m-%d')
-    allowed_categories = ["Food", "Transport", "Bills", "Health", "Entertainment", "Shopping", "Other"]
+    today_str = datetime.today().strftime("%Y-%m-%d")
+    allowed_categories = [
+        "Food",
+        "Transport",
+        "Bills",
+        "Health",
+        "Entertainment",
+        "Shopping",
+        "Other",
+    ]
 
     if request.method == "POST":
         amount = request.form.get("amount")
@@ -223,22 +262,50 @@ def add_expense():
         # 1. Check for missing fields
         if not amount or not description or not date or not category:
             flash("All fields are required.")
-            return render_template("add_expense.html", amount=amount, category=category, date=date, description=description, today_str=today_str)
+            return render_template(
+                "add_expense.html",
+                amount=amount,
+                category=category,
+                date=date,
+                description=description,
+                today_str=today_str,
+            )
 
         # 2. Validate amount
         try:
             amount_float = float(amount)
             if amount_float <= 0:
                 flash("Amount must be greater than zero.")
-                return render_template("add_expense.html", amount=amount, category=category, date=date, description=description, today_str=today_str)
+                return render_template(
+                    "add_expense.html",
+                    amount=amount,
+                    category=category,
+                    date=date,
+                    description=description,
+                    today_str=today_str,
+                )
         except ValueError:
             flash("Invalid amount.")
-            return render_template("add_expense.html", amount=amount, category=category, date=date, description=description, today_str=today_str)
+            return render_template(
+                "add_expense.html",
+                amount=amount,
+                category=category,
+                date=date,
+                description=description,
+                today_str=today_str,
+            )
 
         # 3. Validate category
         if category not in allowed_categories:
             flash("Invalid category selected.")
-            return render_template("add_expense.html", amount=amount, category=category, date=date, description=description, today_str=today_str)
+            return render_template(
+                "add_expense.html",
+                amount=amount,
+                category=category,
+                date=date,
+                description=description,
+                today_str=today_str,
+            )
 
         db_add_expense(g.user["id"], amount_float, category, date, description)
         flash("Expense added successfully!")
@@ -247,9 +314,88 @@ def add_expense():
     return render_template("add_expense.html", today_str=today_str)
 
 
-@app.route("/expenses/<int:id>/edit")
+@app.route("/expenses/<int:id>/edit", methods=["GET", "POST"])
 def edit_expense(id):
-    return "Edit expense — coming in Step 8"
+    if not g.user:
+        return redirect(url_for("login"))
+
+    expense = get_expense_by_id(id)
+    if not expense:
+        abort(404)
+
+    # Ownership check
+    if expense["user_id"] != g.user["id"]:
+        abort(403)
+
+    allowed_categories = [
+        "Food",
+        "Transport",
+        "Bills",
+        "Health",
+        "Entertainment",
+        "Shopping",
+        "Other",
+    ]
+
+    if request.method == "POST":
+        amount = request.form.get("amount")
+        category = request.form.get("category")
+        date = request.form.get("date")
+        description = request.form.get("description")
+
+        # 1. Check for missing fields
+        if not amount or not description or not date or not category:
+            flash("All fields are required.")
+            return render_template(
+                "edit_expense.html",
+                expense=expense,
+                amount=amount,
+                category=category,
+                date=date,
+                description=description,
+            )
+
+        # 2. Validate amount
+        try:
+            amount_float = float(amount)
+            if amount_float <= 0:
+                flash("Amount must be greater than zero.")
+                return render_template(
+                    "edit_expense.html",
+                    expense=expense,
+                    amount=amount,
+                    category=category,
+                    date=date,
+                    description=description,
+                )
+        except ValueError:
+            flash("Invalid amount.")
+            return render_template(
+                "edit_expense.html",
+                expense=expense,
+                amount=amount,
+                category=category,
+                date=date,
+                description=description,
+            )
+
+        # 3. Validate category
+        if category not in allowed_categories:
+            flash("Invalid category selected.")
+            return render_template(
+                "edit_expense.html",
+                expense=expense,
+                amount=amount,
+                category=category,
+                date=date,
+                description=description,
+            )
+
+        update_expense(id, amount_float, category, date, description)
+        flash("Expense updated successfully!")
+        return redirect(url_for("profile"))
+
+    return render_template("edit_expense.html", expense=expense)
 
 
 @app.route("/expenses/<int:id>/delete")

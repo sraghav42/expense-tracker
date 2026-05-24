@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Confirm Delete - Spendly{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+    <div class="auth-container">
+        <header class="auth-header">
+            <h1 class="auth-title">Delete Expense?</h1>
+            <p class="auth-subtitle">This action cannot be undone.</p>
+        </header>
+
+        <div class="auth-card" style="text-align: center;">
+            <div style="margin-bottom: 2rem;">
+                <i data-lucide="alert-triangle" style="width: 48px; height: 48px; color: var(--accent-pink); margin-bottom: 1rem;"></i>
+                <p style="color: var(--ink-muted); line-height: 1.6;">
+                    Are you sure you want to delete the expense: <br>
+                    <strong>"{{ expense.description }}"</strong> for <strong>₹{{ "%.2f"|format(expense.amount) }}</strong>?
+                </p>
+            </div>
+
+            <form action="{{ url_for('delete_expense_route', id=expense.id) }}" method="POST">
+                <button type="submit" class="btn-submit" style="background: linear-gradient(135deg, #ff4d4d, #cc0000); margin-bottom: 1rem;">
+                    Yes, Delete Expense
+                </button>
+            </form>
+            
+            <a href="{{ url_for('profile') }}" class="btn-secondary" style="display: block; text-decoration: none; padding: 0.75rem; border-radius: 8px; border: 1px solid var(--border-color); color: var(--ink-main); font-weight: 500;">
+                Cancel and Go Back
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}

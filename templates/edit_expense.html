@@ -39,6 +39,9 @@
                 </div>
 
                 <button type="submit" class="btn-submit">Update Expense</button>
+                <a href="{{ url_for('delete_expense_route', id=expense.id) }}" class="btn-submit" style="display: block; text-align: center; text-decoration: none; background: linear-gradient(135deg, #ff4d4d, #cc0000); margin-top: 1rem;">
+                    Delete Expense
+                </a>
             </form>
         </div>
 

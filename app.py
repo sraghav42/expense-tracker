@@ -21,6 +21,7 @@ from database.db import (
     add_expense as db_add_expense,
     get_expense_by_id,
     update_expense,
+    delete_expense,
 )
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
@@ -398,9 +399,25 @@ def edit_expense(id):
     return render_template("edit_expense.html", expense=expense)
 
 
-@app.route("/expenses/<int:id>/delete")
-def delete_expense(id):
-    return "Delete expense — coming in Step 9"
+@app.route("/expenses/<int:id>/delete", methods=["GET", "POST"])
+def delete_expense_route(id):
+    if not g.user:
+        return redirect(url_for("login"))
+
+    expense = get_expense_by_id(id)
+    if not expense:
+        abort(404)
+
+    # Ownership check
+    if expense["user_id"] != g.user["id"]:
+        abort(403)
+
+    if request.method == "POST":
+        delete_expense(id)
+        flash("Expense deleted successfully!")
+        return redirect(url_for("profile"))
+
+    return render_template("delete_confirm.html", expense=expense)
 
 
 if __name__ == "__main__":

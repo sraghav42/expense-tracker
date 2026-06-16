@@ -5,7 +5,7 @@ phases:
     commands:
       - echo "Creating zip file of selected application files..."
       # Add or remove files and directories below as needed
-      - zip -r app.zip app.py requirements.txt Procfile Dockerfile database/ static/ templates/
+      - zip -r app.zip app.py spendly.db requirements.txt Procfile Dockerfile database/ static/ templates/
 
 artifacts:
   files:

@@ -3,10 +3,15 @@ version: 0.2
 phases:
   build:
     commands:
-      - echo "Creating zip file of selected application files..."
-      # Add or remove files and directories below as needed
-      - zip -r app.zip app.py spendly.db requirements.txt Procfile Dockerfile database/ static/ templates/
+      - echo "Preparing application files for Elastic Beanstalk..."
 
 artifacts:
   files:
-    - app.zip
+    - app.py
+    - spendly.db
+    - requirements.txt
+    - Procfile
+    - Dockerfile
+    - database/**/*
+    - static/**/*
+    - templates/**/*
